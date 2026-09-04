@@ -1,8 +1,8 @@
 package com.employeepayroll.model;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 public class Payroll {
 
@@ -15,7 +15,7 @@ public class Payroll {
     private BigDecimal grossSalary;
     private BigDecimal netSalary;
     private String paymentStatus;
-    private LocalDateTime generatedAt;
+    private Timestamp generatedAt;
 
     public Payroll() {
     }
@@ -30,7 +30,7 @@ public class Payroll {
             BigDecimal grossSalary,
             BigDecimal netSalary,
             String paymentStatus,
-            LocalDateTime generatedAt) {
+            Timestamp generatedAt) {
 
         this.payrollId = payrollId;
         this.employeeId = employeeId;
@@ -116,11 +116,11 @@ public class Payroll {
         this.paymentStatus = paymentStatus;
     }
 
-    public LocalDateTime getGeneratedAt() {
+    public Timestamp getGeneratedAt() {
         return generatedAt;
     }
 
-    public void setGeneratedAt(LocalDateTime generatedAt) {
+    public void setGeneratedAt(Timestamp generatedAt) {
         this.generatedAt = generatedAt;
     }
 
