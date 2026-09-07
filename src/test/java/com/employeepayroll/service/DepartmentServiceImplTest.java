@@ -2,7 +2,6 @@ package com.employeepayroll.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import org.junit.jupiter.api.Test;
 
 import com.employeepayroll.model.Department;
@@ -14,17 +13,19 @@ class DepartmentServiceImplTest {
     }
 
     @Test
-    void testAddValidDepartment() {
+void testAddValidDepartment() {
 
-        Department department = new Department();
-        department.setDepartmentName("Engineering");
+    Department department = new Department();
+    department.setDepartmentName(
+            "Test Engineering " + System.currentTimeMillis()
+    );
 
-        DepartmentService service = createService();
+    DepartmentService service = createService();
 
-        assertDoesNotThrow(
-                () -> service.addDepartment(department)
-        );
-    }
+    assertDoesNotThrow(
+            () -> service.addDepartment(department)
+    );
+}
 
     @Test
     void testNullDepartmentValidation() {
