@@ -34,8 +34,10 @@ class PayrollDAOImplTest {
                 """;
 
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
+             PreparedStatement statement =
+                     connection.prepareStatement(sql);
+             ResultSet resultSet =
+                     statement.executeQuery()) {
 
             if (resultSet.next()) {
                 return resultSet.getInt("employee_id");
@@ -43,7 +45,8 @@ class PayrollDAOImplTest {
         }
 
         throw new IllegalStateException(
-                "No employee exists in database. Create an employee before running PayrollDAOImplTest."
+                "No employee exists in database. "
+                + "Create an employee before running PayrollDAOImplTest."
         );
     }
 
@@ -53,10 +56,12 @@ class PayrollDAOImplTest {
 
         Payroll payroll = new Payroll();
 
-        payroll.setEmployeeId(getExistingEmployeeId());
+        payroll.setEmployeeId(
+                getExistingEmployeeId()
+        );
 
         payroll.setSalaryMonth(
-                LocalDate.of(2026, 12, 1)
+                LocalDate.of(2099, 1, 1)
         );
 
         payroll.setBasicSalary(
@@ -89,9 +94,19 @@ class PayrollDAOImplTest {
     @Test
     void testAddPayroll() throws Exception {
 
+        PayrollDAO dao = createDAO();
+
         Payroll payroll = createValidPayroll();
 
-        PayrollDAO dao = createDAO();
+        /*
+         * Remove any previous test record for the same
+         * employee and salary month so this test remains
+         * repeatable across multiple Maven test runs.
+         */
+        deletePayrollForTestData(
+                payroll.getEmployeeId(),
+                payroll.getSalaryMonth()
+        );
 
         assertDoesNotThrow(
                 () -> dao.addPayroll(payroll)
@@ -105,7 +120,8 @@ class PayrollDAOImplTest {
 
         PayrollDAO dao = createDAO();
 
-        List<Payroll> payrolls = dao.getAllPayrolls();
+        List<Payroll> payrolls =
+                dao.getAllPayrolls();
 
         if (!payrolls.isEmpty()) {
 
@@ -155,56 +171,15 @@ class PayrollDAOImplTest {
 
         PayrollDAO dao = createDAO();
 
-        List<Payroll> payrolls =
-                dao.getAllPayrolls();
-
-        if (!payrolls.isEmpty()) {
-
-            Payroll payroll =
-                    payrolls.get(0);
-
-            payroll.setBasicSalary(
-                    new BigDecimal("51000.00")
-            );
-
-            payroll.setAllowance(
-                    new BigDecimal("6000.00")
-            );
-
-            payroll.setDeduction(
-                    new BigDecimal("3000.00")
-            );
-
-            payroll.setGrossSalary(
-                    new BigDecimal("57000.00")
-            );
-
-            payroll.setNetSalary(
-                    new BigDecimal("54000.00")
-            );
-
-            assertDoesNotThrow(
-                    () -> dao.updatePayroll(payroll)
-            );
-        }
-    }
-
-    // --------------------------deletePayroll---------------------------------------------------
-
-    @Test
-    void testDeletePayroll() throws Exception {
-
-        PayrollDAO dao = createDAO();
-
-        Payroll payroll =
-                createValidPayroll();
+        Payroll payroll = createValidPayroll();
 
         /*
-         * Use a unique salary month so that this test
-         * does not conflict with an existing payroll record.
+         * Make sure the test payroll does not already
+         * exist from a previous test execution.
          */
-        payroll.setSalaryMonth(
-                LocalDate.of(2099, 1, 1)
+        deletePayrollForTestData(
+                payroll.getEmployeeId(),
+                payroll.getSalaryMonth()
         );
 
         dao.addPayroll(payroll);
@@ -218,7 +193,74 @@ class PayrollDAOImplTest {
 
         for (Payroll savedPayroll : payrolls) {
 
-            if (LocalDate.of(2099, 1, 1)
+            if (payroll.getSalaryMonth()
+                    .equals(savedPayroll.getSalaryMonth())) {
+
+                payrollId =
+                        savedPayroll.getPayrollId();
+
+                break;
+            }
+        }
+
+        assertTrue(
+                payrollId > 0,
+                "Payroll should have been created before update test"
+        );
+
+        payroll.setPayrollId(payrollId);
+
+        payroll.setBasicSalary(
+                new BigDecimal("51000.00")
+        );
+
+        payroll.setAllowance(
+                new BigDecimal("6000.00")
+        );
+
+        payroll.setDeduction(
+                new BigDecimal("3000.00")
+        );
+
+        payroll.setGrossSalary(
+                new BigDecimal("57000.00")
+        );
+
+        payroll.setNetSalary(
+                new BigDecimal("54000.00")
+        );
+
+        assertTrue(
+                dao.updatePayroll(payroll)
+        );
+    }
+
+    // --------------------------deletePayroll---------------------------------------------------
+
+    @Test
+    void testDeletePayroll() throws Exception {
+
+        PayrollDAO dao = createDAO();
+
+        Payroll payroll = createValidPayroll();
+
+        deletePayrollForTestData(
+                payroll.getEmployeeId(),
+                payroll.getSalaryMonth()
+        );
+
+        dao.addPayroll(payroll);
+
+        List<Payroll> payrolls =
+                dao.getPayrollsByEmployeeId(
+                        payroll.getEmployeeId()
+                );
+
+        int payrollId = -1;
+
+        for (Payroll savedPayroll : payrolls) {
+
+            if (payroll.getSalaryMonth()
                     .equals(savedPayroll.getSalaryMonth())) {
 
                 payrollId =
@@ -236,5 +278,31 @@ class PayrollDAOImplTest {
         assertTrue(
                 dao.deletePayroll(payrollId)
         );
+    }
+
+    // --------------------------deletePayrollForTestData---------------------------------------------------
+
+    private void deletePayrollForTestData(
+            int employeeId,
+            LocalDate salaryMonth) throws SQLException {
+
+        String sql = """
+                DELETE FROM payroll
+                WHERE employee_id = ?
+                AND salary_month = ?
+                """;
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setInt(1, employeeId);
+            statement.setDate(
+                    2,
+                    java.sql.Date.valueOf(salaryMonth)
+            );
+
+            statement.executeUpdate();
+        }
     }
 }
