@@ -12,24 +12,26 @@ public class Attendance {
     private LocalTime checkIn;
     private LocalTime checkOut;
 
+    // --------------------------constructors---------------------------------------------------
+
     public Attendance() {
     }
 
     public Attendance(
-            int attendanceId,
             int employeeId,
             LocalDate attendanceDate,
             String status,
             LocalTime checkIn,
-            LocalTime checkOut) {
-
-        this.attendanceId = attendanceId;
+            LocalTime checkOut
+    ) {
         this.employeeId = employeeId;
         this.attendanceDate = attendanceDate;
         this.status = status;
         this.checkIn = checkIn;
         this.checkOut = checkOut;
     }
+
+    // --------------------------getters-setters---------------------------------------------------
 
     public int getAttendanceId() {
         return attendanceId;
@@ -78,6 +80,8 @@ public class Attendance {
     public void setCheckOut(LocalTime checkOut) {
         this.checkOut = checkOut;
     }
+
+    // --------------------------toString---------------------------------------------------
 
     @Override
     public String toString() {

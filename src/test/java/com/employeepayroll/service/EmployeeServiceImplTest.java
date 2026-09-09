@@ -1,43 +1,18 @@
 package com.employeepayroll.service;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.employeepayroll.dao.DepartmentDAO;
-import com.employeepayroll.dao.DepartmentDAOImpl;
-import com.employeepayroll.model.Department;
 import com.employeepayroll.model.Employee;
 
 class EmployeeServiceImplTest {
 
     private EmployeeService createService() {
         return new EmployeeServiceImpl();
-    }
-
-    private int departmentId;
-
-    @BeforeEach
-    void setUp() throws SQLException {
-
-        DepartmentDAO departmentDAO = new DepartmentDAOImpl();
-
-        List<Department> departments =
-                departmentDAO.getAllDepartments();
-
-        if (departments == null || departments.isEmpty()) {
-            throw new IllegalStateException(
-                    "At least one department must exist for Employee tests"
-            );
-        }
-
-        departmentId = departments.get(0).getDepartmentId();
     }
 
     private Employee createValidEmployee() {
@@ -49,11 +24,10 @@ class EmployeeServiceImplTest {
         employee.setEmail(
                 "test" + System.currentTimeMillis() + "@example.com"
         );
-        employee.setPhone("9876543210");
-
-        // Use an existing department from the database
-        employee.setDepartmentId(departmentId);
-
+        employee.setPhone(
+        "9" + String.valueOf(System.currentTimeMillis()).substring(4)
+);
+        employee.setDepartmentId(28);
         employee.setDesignation("Software Engineer");
         employee.setJoiningDate(LocalDate.now().minusDays(30));
         employee.setBasicSalary(new BigDecimal("50000"));
