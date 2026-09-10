@@ -5,40 +5,47 @@ import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import com.employeepayroll.model.Attendance;
 
 class AttendanceServiceImplTest {
+    private static long attendanceTestCounter = 0;
 
     private AttendanceService createService() {
         return new AttendanceServiceImpl();
     }
 
-    private Attendance createValidAttendance() {
+        private Attendance createValidAttendance() {
 
         Attendance attendance = new Attendance();
 
         attendance.setEmployeeId(14);
+
         attendance.setAttendanceDate(
         LocalDate.now().minusDays(
-                (System.nanoTime() % 100000) + 1)
+                1000 + (++attendanceTestCounter)
+                )
         );
+
         attendance.setStatus("PRESENT");
+
         attendance.setCheckIn(
                 LocalTime.of(9, 0)
         );
+
         attendance.setCheckOut(
                 LocalTime.of(18, 0)
         );
 
         return attendance;
-    }
+        }
 
     // --------------------------markAttendance---------------------------------------------------
 
-    @Test
-    void testMarkValidAttendance() {
+        @Test
+        void testMarkValidAttendance() {
 
         Attendance attendance = createValidAttendance();
 
@@ -47,7 +54,13 @@ class AttendanceServiceImplTest {
         assertDoesNotThrow(
                 () -> service.addAttendance(attendance)
         );
-    }
+
+        assertTrue(attendance.getAttendanceId() > 0);
+
+        service.deleteAttendance(
+                attendance.getAttendanceId()
+                );
+        }
 
     @Test
     void testMarkNullAttendance() {
@@ -153,8 +166,8 @@ class AttendanceServiceImplTest {
         );
     }
 
-    @Test
-    void testAbsentWithCheckIn() {
+        @Test
+        void testAbsentWithCheckIn() {
 
         Attendance attendance = createValidAttendance();
 
@@ -167,7 +180,13 @@ class AttendanceServiceImplTest {
         assertDoesNotThrow(
                 () -> service.addAttendance(attendance)
         );
-    }
+
+        assertTrue(attendance.getAttendanceId() > 0);
+
+        service.deleteAttendance(
+                attendance.getAttendanceId()
+        );
+        }
 
     @Test
     void testAbsentWithCheckInTime() {

@@ -6,6 +6,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import com.employeepayroll.model.Attendance;
@@ -21,18 +22,10 @@ class AttendanceDAOImplTest {
         Attendance attendance = new Attendance();
 
         attendance.setEmployeeId(14);
-        attendance.setAttendanceDate(
-        LocalDate.now().minusDays(
-                (System.nanoTime() % 100000) + 1
-            )
-        );
+        attendance.setAttendanceDate(LocalDate.of(1800, 1, 1));
         attendance.setStatus("PRESENT");
-        attendance.setCheckIn(
-                LocalTime.of(9, 0)
-        );
-        attendance.setCheckOut(
-                LocalTime.of(18, 0)
-        );
+        attendance.setCheckIn(LocalTime.of(9, 0));
+        attendance.setCheckOut(LocalTime.of(18, 0));
 
         return attendance;
     }
@@ -48,6 +41,12 @@ class AttendanceDAOImplTest {
 
         assertDoesNotThrow(
                 () -> dao.addAttendance(attendance)
+        );
+
+        assertTrue(attendance.getAttendanceId() > 0);
+
+        dao.deleteAttendance(
+                attendance.getAttendanceId()
         );
     }
 

@@ -16,7 +16,6 @@ import com.employeepayroll.util.DBConnection;
 public class AttendanceDAOImpl implements AttendanceDAO {
 
     // --------------------------addAttendance---------------------------------------------------
-
     @Override
     public void addAttendance(Attendance attendance) {
 
@@ -28,29 +27,59 @@ public class AttendanceDAOImpl implements AttendanceDAO {
 
         try (
                 Connection connection = DBConnection.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)
+                PreparedStatement statement = connection.prepareStatement(
+                        sql,
+                        java.sql.Statement.RETURN_GENERATED_KEYS
+                )
         ) {
 
             statement.setInt(1, attendance.getEmployeeId());
-            statement.setDate(2, Date.valueOf(attendance.getAttendanceDate()));
+            statement.setDate(
+                    2,
+                    Date.valueOf(attendance.getAttendanceDate())
+            );
             statement.setString(3, attendance.getStatus());
 
             if (attendance.getCheckIn() != null) {
-                statement.setTime(4, Time.valueOf(attendance.getCheckIn()));
+                statement.setTime(
+                        4,
+                        Time.valueOf(attendance.getCheckIn())
+                );
             } else {
-                statement.setNull(4, java.sql.Types.TIME);
+                statement.setNull(
+                        4,
+                        java.sql.Types.TIME
+                );
             }
 
             if (attendance.getCheckOut() != null) {
-                statement.setTime(5, Time.valueOf(attendance.getCheckOut()));
+                statement.setTime(
+                        5,
+                        Time.valueOf(attendance.getCheckOut())
+                );
             } else {
-                statement.setNull(5, java.sql.Types.TIME);
+                statement.setNull(
+                        5,
+                        java.sql.Types.TIME
+                );
             }
 
             statement.executeUpdate();
 
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+
+                if (generatedKeys.next()) {
+                    attendance.setAttendanceId(
+                            generatedKeys.getInt(1)
+                    );
+                }
+            }
+
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to add attendance", e);
+            throw new RuntimeException(
+                    "Failed to add attendance",
+                    e
+            );
         }
     }
 
